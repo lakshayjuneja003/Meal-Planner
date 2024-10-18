@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Plan Generator</title>
+    <link rel="stylesheet" href="../public/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            margin-top: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .meal {
+            margin-bottom: 10px;
+        }
+        .meal h4 {
+            margin: 0;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Meal Plan Generator</h1>
+    <form id="mealForm">
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="calorie_goal">Calorie Goal:</label><br>
+        <input type="number" id="calorie_goal" name="calorie_goal" required><br><br>
+
+        <label for="diet_preference">Diet Preference:</label><br>
+        <select id="diet_preference" name="diet_preference">
+            <option value="Standard">Standard</option>
+            <option value="Vegetarian">Vegetarian</option>
+            <option value="Keto">Keto</option>
+        </select><br><br>
+
+        <button type="submit">Generate Meal Plan</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('mealForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const calorieGoal = document.getElementById('calorie_goal').value;
+            const dietPreference = document.getElementById('diet_preference').value;
+
+            const response = await fetch('http://localhost:3000/generate_meal', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name,
+                    calorie_goal: calorieGoal,
+                    diet_preference: dietPreference
+                })
+            });
+
+            const data = await response.json();
+            document.getElementById('result').innerHTML = `
+                <h3>Meal Plan for ${data.name}</h3>
+                <div class="meal"><h4>Breakfast:</h4><p>${data.meal_plan.breakfast}</p></div>
+                <div class="meal"><h4>Lunch:</h4><p>${data.meal_plan.lunch}</p></div>
+                <div class="meal"><h4>Dinner:</h4><p>${data.meal_plan.dinner}</p></div>
+            `;
+
+            // Clear the input fields
+            document.getElementById('name').value = '';
+            document.getElementById('calorie_goal').value = '';
+            document.getElementById('diet_preference').value = 'Standard'; // Reset to default
+        });
+    </script>
+</body>
+</html>
